@@ -3,6 +3,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "FlyFish.h"
+#include "Player.h"
 
 class Game
 {
@@ -67,6 +68,8 @@ private:
 	void CleanupGameEngine( );
 
 	// GLOBALS
-	ThreeBlade m_Player{20.f, m_Viewport.height / 2, 20.f};
-	ThreeBlade testTwoBlade{20.f, 20.f, 20.f};
+	Player m_Player;
+
+	/*ThreeBlade m_Player{20.f, m_Viewport.height / 2, 20.f};
+	ThreeBlade testTwoBlade{200.f, 0.f, 0.f};*/
 };

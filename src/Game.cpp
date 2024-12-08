@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "structs.h"
 #include "FlyFish.h"
+#include "Player.h"
 
 Game::Game(const Window& window)
 	: m_Window{ window }
@@ -16,6 +17,7 @@ Game::Game(const Window& window)
 	, m_pContext{ nullptr }
 	, m_Initialized{ false }
 	, m_MaxElapsedSeconds{ 0.1f }
+	, m_Player{ 20.f, 360.f, 20.f, 20.f, 1280.f, 720.f }
 {
 	InitializeGameEngine();
 }
@@ -194,14 +196,16 @@ void Game::CleanupGameEngine()
 
 void Game::Update(float elapsedSec)
 {
-	m_Player += testTwoBlade * elapsedSec;
+	//m_Player += testTwoBlade * elapsedSec;
+	m_Player.Move(m_Player.GetDirection(), elapsedSec);
 }
-
 void Game::Draw() const
 {
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	utils::SetColor(Color4f(1.0f, 0.f, 0.f, 1.0f));
-	utils::FillRect(m_Player[0], m_Player[1], 20.f, 20.f);
+	m_Player.Draw();
+
+	/*utils::SetColor(Color4f(1.0f, 0.f, 0.f, 1.0f));
+	utils::FillRect(m_Player[0], m_Player[1], 20.f, 20.f);*/
 }
