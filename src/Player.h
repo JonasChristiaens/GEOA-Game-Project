@@ -4,22 +4,17 @@
 
 class Player {
 public:
-    Player(float x, float y, float width, float height, float windowWidth, float windowHeight);
+    Player(const ThreeBlade& startPosition, float size, const Color4f& color);
 
-    void Move(const ThreeBlade& direction, float elapsedSec);
+    void Move(float elapsedSec, const Rectf& viewport);
     void Draw() const;
 
-    const ThreeBlade& GetDirection() const {
-        return m_Direction;
-    }
-
 private:
-    ThreeBlade m_Position;
-    ThreeBlade m_Direction;
-    float m_Width;
-    float m_Height;
-    float m_WindowWidth;
-    float m_WindowHeight;
+    ThreeBlade m_Position; 
+    float m_Size;          
+    Color4f m_Color;       
+    float m_Speed{ 80.0f };
+    float m_Direction[2];
 
-    void HandleCollision();
+    void HandleCollision(const Rectf& viewport);
 };

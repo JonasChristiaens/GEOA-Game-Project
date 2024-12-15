@@ -69,7 +69,9 @@ private:
 
 	// GLOBALS
 	Player m_Player;
+	ThreeBlade m_PlayerThreeBlade{ 300, 300, 50 };
 
-	/*ThreeBlade m_Player{20.f, m_Viewport.height / 2, 20.f};
-	ThreeBlade testTwoBlade{200.f, 0.f, 0.f};*/
+	/*ThreeBlade test3blade2{50, 50, 50};
+	OneBlade testBlade{ 0, 1, 0, 1 };
+	Rectf rectangle{ 50, 50, 50, 50 };*/
 };

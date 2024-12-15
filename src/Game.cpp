@@ -17,7 +17,7 @@ Game::Game(const Window& window)
 	, m_pContext{ nullptr }
 	, m_Initialized{ false }
 	, m_MaxElapsedSeconds{ 0.1f }
-	, m_Player{ 20.f, 360.f, 20.f, 20.f, 1280.f, 720.f }
+	, m_Player{ m_PlayerThreeBlade, 20.f, RGB(1.f, 0.f, 0.f) }
 {
 	InitializeGameEngine();
 }
@@ -196,16 +196,24 @@ void Game::CleanupGameEngine()
 
 void Game::Update(float elapsedSec)
 {
-	//m_Player += testTwoBlade * elapsedSec;
-	m_Player.Move(m_Player.GetDirection(), elapsedSec);
-}
-void Game::Draw() const
-{
+	//m_Player.Move(m_Player.GetDirection(), elapsedSec);
+
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	m_Player.Draw();
+	utils::SetColor(Color4f{ 1,0,0,1 });
+	utils::FillRect(test3blade[0], test3blade[1], 20, 20);
 
-	/*utils::SetColor(Color4f(1.0f, 0.f, 0.f, 1.0f));
-	utils::FillRect(m_Player[0], m_Player[1], 20.f, 20.f);*/
+	Motor translator{ Motor::Translation(200 * elapsedSec, TwoBlade{1,0,0,0,0,0}) };
+	test3blade = (translator * test3blade * ~translator).Grade3();
+
+	ThreeBlade m_pillarPos{ GetViewPort().width / 2,GetViewPort().height / 2, 0 };
+	Motor rotator{ Motor::Rotation(100 * elapsedSec,TwoBlade{0,0,0,0,0,-1}) };
+	Motor rotTranslation{ Motor::Translation(m_pillarPos.VNorm(), TwoBlade(m_pillarPos[0], m_pillarPos[1], m_pillarPos[2], 0, 0, 0)) };
+	rotator = (rotTranslation * rotator * ~rotTranslation);
+	test3blade = (rotator * test3blade * ~rotator).Grade3();
+}
+void Game::Draw() const
+{
+	//m_Player.Draw();
 }
