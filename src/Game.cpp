@@ -17,9 +17,10 @@ Game::Game(const Window& window)
 	, m_pContext{ nullptr }
 	, m_Initialized{ false }
 	, m_MaxElapsedSeconds{ 0.1f }
-	, m_Player{ m_PlayerThreeBlade, 20.f, RGB(1.f, 0.f, 0.f) }
 {
 	InitializeGameEngine();
+	m_Player = new Player(m_PlayerThreeBlade, m_Viewport, 20, 200);
+	PrintControls();
 }
 
 Game::~Game()
@@ -194,26 +195,28 @@ void Game::CleanupGameEngine()
 
 }
 
+void Game::PrintControls()
+{
+	std::cout << "-- Controls --" << std::endl;
+	std::cout << "==============" << std::endl;
+
+	std::cout << "To Perform Rotation: press 'R'" << std::endl;
+	std::cout << "To Perform Sprint: press 'S'" << std::endl;
+}
+
 void Game::Update(float elapsedSec)
 {
-	//m_Player.Move(m_Player.GetDirection(), elapsedSec);
-
+	const Uint8* state = SDL_GetKeyboardState(nullptr);
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	utils::SetColor(Color4f{ 1,0,0,1 });
-	utils::FillRect(test3blade[0], test3blade[1], 20, 20);
-
-	Motor translator{ Motor::Translation(200 * elapsedSec, TwoBlade{1,0,0,0,0,0}) };
-	test3blade = (translator * test3blade * ~translator).Grade3();
-
-	ThreeBlade m_pillarPos{ GetViewPort().width / 2,GetViewPort().height / 2, 0 };
-	Motor rotator{ Motor::Rotation(100 * elapsedSec,TwoBlade{0,0,0,0,0,-1}) };
-	Motor rotTranslation{ Motor::Translation(m_pillarPos.VNorm(), TwoBlade(m_pillarPos[0], m_pillarPos[1], m_pillarPos[2], 0, 0, 0)) };
-	rotator = (rotTranslation * rotator * ~rotTranslation);
-	test3blade = (rotator * test3blade * ~rotator).Grade3();
+	
+	m_Player->Move(elapsedSec);
+	if (state[SDL_SCANCODE_R])
+	{
+		m_Player->Rotate(elapsedSec, { GetViewPort().width / 2,GetViewPort().height / 2, 0 });
+	}
 }
 void Game::Draw() const
 {
-	//m_Player.Draw();
+	m_Player->Draw();
 }

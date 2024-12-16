@@ -66,12 +66,9 @@ private:
 	// FUNCTIONS
 	void InitializeGameEngine( );
 	void CleanupGameEngine( );
+	void PrintControls();
 
 	// GLOBALS
-	Player m_Player;
+	Player* m_Player;
 	ThreeBlade m_PlayerThreeBlade{ 300, 300, 50 };
-
-	/*ThreeBlade test3blade2{50, 50, 50};
-	OneBlade testBlade{ 0, 1, 0, 1 };
-	Rectf rectangle{ 50, 50, 50, 50 };*/
-};
+}; 
