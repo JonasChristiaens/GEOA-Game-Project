@@ -4,6 +4,7 @@
 #include "SDL_opengl.h"
 #include "FlyFish.h"
 #include "Player.h"
+#include "Pillar.h"
 
 class Game
 {
@@ -70,5 +71,8 @@ private:
 
 	// GLOBALS
 	Player* m_Player;
-	ThreeBlade m_PlayerThreeBlade{ 300, 300, 50 };
+	Pillar* m_Pillar1;
+
+	ThreeBlade m_PlayerThreeBlade{ 50, 300, 0 };
+	ThreeBlade m_Pillar1ThreeBlade{ GetViewPort().width / 2, GetViewPort().height / 2, 0};
 }; 

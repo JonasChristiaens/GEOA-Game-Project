@@ -1,16 +1,16 @@
 #include "Player.h"
 #include <iostream>
 
-Player::Player(const ThreeBlade& startPosition, const Rectf& bounds, float size, float speed)
+Player::Player(const ThreeBlade& startPosition, const ThreeBlade& pillarPosition, const Rectf& bounds, float size, float speed)
     : m_Position{ startPosition }
-    , m_Direction{ 1, 1, 0, 0, 0, 0 }
+    , m_Movement{ pillarPosition[0], pillarPosition[1], 0, 0, 0, 200}
     , m_bounds{ bounds }
     , m_Size{ size }
     , m_Speed{ speed }
 {}
 
 void Player::Move(float elapsedSec) {
-    Motor translator{ Motor::Translation(m_Speed * elapsedSec, m_Direction) };
+    Motor translator{ Motor::Translation(m_Speed * elapsedSec, m_Movement) };
     m_Position = (translator * m_Position * ~translator).Grade3();
 
     // check collision with walls
@@ -24,8 +24,8 @@ void Player::Move(float elapsedSec) {
 void Player::Rotate(float elapsedSec, const ThreeBlade& rotationPoint)
 {
     Motor translationToOrigin = Motor::Translation(rotationPoint.VNorm(),
-        TwoBlade(rotationPoint[0], rotationPoint[1], rotationPoint[2], 0, 0, 0));
-    Motor rotator{ Motor::Rotation(m_Speed * elapsedSec,TwoBlade{0, 0, 0, 0, 0, -1}) };
+        TwoBlade(rotationPoint[0], rotationPoint[1], 0, 0, 0, 0));
+    Motor rotator{ Motor::Rotation(m_Speed * elapsedSec, TwoBlade(0, 0, 0, 0, 0, 1))};
 
     rotator = (translationToOrigin * rotator * ~translationToOrigin);
     m_Position = (rotator * m_Position * ~rotator).Grade3();
@@ -36,22 +36,28 @@ void Player::Draw() const {
     utils::FillRect(m_Position[0], m_Position[1], m_Size, m_Size);
 }
 
-const ThreeBlade& Player::GetPosition() const
+const ThreeBlade Player::GetCenter() const
 {
-    return m_Position;
+    return ThreeBlade{ m_Position[0] + m_Size / 2, m_Position[1] + m_Size / 2, 0 };
 }
 
 void Player::ReverseDirection() {
+    // reccomended way (?)
+    // -> initialize 4 OneBlade boundaries to set the viewport bounds
+    // -> at all times calculate distance between Threeblade(player) and OneBlade (walls)
+    // -> if calculation == 0, then you have hit wall
+    
+
     // Reverse the x-direction if the player hits the left or right bounds
     if (m_Position[0] <= m_bounds.left || m_Position[0] + m_Size >= m_bounds.left + m_bounds.width) {
-        m_Direction = TwoBlade(-m_Direction[0], m_Direction[1], m_Direction[2],
-            m_Direction[3], m_Direction[4], m_Direction[5]);
+        m_Movement = TwoBlade(-m_Movement[0], m_Movement[1], m_Movement[2],
+            m_Movement[3], m_Movement[4], m_Movement[5]);
     }
 
     // Reverse the y-direction if the player hits the top or bottom bounds
     if (m_Position[1] <= m_bounds.bottom || m_Position[1] + m_Size >= m_bounds.bottom + m_bounds.height) {
-        m_Direction = TwoBlade(m_Direction[0], -m_Direction[1], m_Direction[2],
-            m_Direction[3], m_Direction[4], m_Direction[5]);
+        m_Movement = TwoBlade(m_Movement[0], -m_Movement[1], m_Movement[2],
+            m_Movement[3], m_Movement[4], m_Movement[5]);
     }
 }
 

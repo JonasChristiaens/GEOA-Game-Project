@@ -4,21 +4,20 @@
 
 class Player {
 public:
-    Player(const ThreeBlade& startPosition, const Rectf& bounds, float size, float speed);
+    Player(const ThreeBlade& startPosition, const ThreeBlade& pillarPosition, const Rectf& bounds, float size, float speed);
 
     void Move(float elapsedSec);
     void Rotate(float elapsedSec, const ThreeBlade& rotationPoint);
     void Draw() const;
 
-    const ThreeBlade& GetPosition() const;
+    const ThreeBlade GetCenter() const;
 
 private:
     void ReverseDirection();
     bool CheckCollision();
 
-
     ThreeBlade m_Position;
-    TwoBlade m_Direction;
+    TwoBlade m_Movement;
     const Rectf& m_bounds;
 
     float m_Speed;

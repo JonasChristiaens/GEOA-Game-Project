@@ -10,6 +10,8 @@
 #include "FlyFish.h"
 #include "Player.h"
 
+#include <iostream>
+
 Game::Game(const Window& window)
 	: m_Window{ window }
 	, m_Viewport{ 0,0,window.width,window.height }
@@ -19,12 +21,20 @@ Game::Game(const Window& window)
 	, m_MaxElapsedSeconds{ 0.1f }
 {
 	InitializeGameEngine();
-	m_Player = new Player(m_PlayerThreeBlade, m_Viewport, 20, 200);
+
+	// print controls & initialize class instances
 	PrintControls();
+	m_Pillar1 = new Pillar(m_Pillar1ThreeBlade, 15);
+	m_Player = new Player(m_PlayerThreeBlade, m_Pillar1->GetCenter(), m_Viewport, 20, 200);
 }
 
 Game::~Game()
 {
+	delete m_Player;
+	m_Player = nullptr;
+
+	delete m_Pillar1;
+	m_Pillar1 = nullptr;
 	CleanupGameEngine();
 }
 
@@ -213,10 +223,17 @@ void Game::Update(float elapsedSec)
 	m_Player->Move(elapsedSec);
 	if (state[SDL_SCANCODE_R])
 	{
-		m_Player->Rotate(elapsedSec, { GetViewPort().width / 2,GetViewPort().height / 2, 0 });
+		m_Player->Rotate(elapsedSec, m_Pillar1->GetCenter());
 	}
 }
 void Game::Draw() const
 {
 	m_Player->Draw();
+	m_Pillar1->Draw();
+
+	utils::SetColor(Color4f{ 0,1,0,1 });
+	utils::DrawLine(Point2f(m_Player->GetCenter()[0], m_Player->GetCenter()[1]), Point2f(m_Pillar1->GetCenter()[0], m_Pillar1->GetCenter()[1]));
+
+	/*std::cout << "X: " << m_Player->GetCenter()[0] << std::endl;
+	std::cout << "Y: " << m_Player->GetCenter()[1] << std::endl;*/
 }
