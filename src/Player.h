@@ -13,8 +13,7 @@ public:
     const ThreeBlade GetCenter() const;
 
 private:
-    void ReverseDirection();
-    bool CheckCollision();
+    float CalculateDistance(const ThreeBlade& player, const OneBlade& wall);
 
     ThreeBlade m_Position;
     TwoBlade m_Movement;

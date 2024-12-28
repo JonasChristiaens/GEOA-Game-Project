@@ -13,12 +13,55 @@ void Player::Move(float elapsedSec) {
     Motor translator{ Motor::Translation(m_Speed * elapsedSec, m_Movement) };
     m_Position = (translator * m_Position * ~translator).Grade3();
 
-    // check collision with walls
-    if (CheckCollision())
-    {
-        // reverse direction in which collision was detected
-        ReverseDirection();
+    // Walls
+    OneBlade leftWall{ 0, 0, 0, 720 };
+    OneBlade bottomWall{ 0, 0, 1280, 0 };
+    OneBlade rightWall{ 1280, 0, 1280, 720 };
+    OneBlade topWall{ 0, 720, 1280, 720 };
+
+    // Calculate distances from player to each wall
+    float distanceToLeft = CalculateDistance(m_Position, leftWall);
+    float distanceToRight = CalculateDistance(m_Position, rightWall);
+    float distanceToTop = CalculateDistance(m_Position, topWall);
+    float distanceToBottom = CalculateDistance(m_Position, bottomWall);
+
+    const float threshold = 2.f;
+    if (distanceToLeft <= threshold) {
+        // Player has passed or is at the left wall: reverse x-direction
+        m_Movement = TwoBlade(-m_Movement[0], m_Movement[1], m_Movement[2],
+            m_Movement[3], m_Movement[4], m_Movement[5]);
+
+        // Prevent player from going past the left wall
+        m_Position[0] = m_Size / 2;  // Place player at the left edge
     }
+
+    if (distanceToRight <= threshold) {
+        // Player has passed or is at the right wall: reverse x-direction
+        m_Movement = TwoBlade(-m_Movement[0], m_Movement[1], m_Movement[2],
+            m_Movement[3], m_Movement[4], m_Movement[5]);
+
+        // Prevent player from going past the right wall
+        m_Position[0] = 1280 - m_Size / 2;  // Place player at the right edge
+    }
+
+    if (distanceToTop <= threshold) {
+        // Player has passed or is at the top wall: reverse y-direction
+        m_Movement = TwoBlade(m_Movement[0], -m_Movement[1], m_Movement[2],
+            m_Movement[3], m_Movement[4], m_Movement[5]);
+
+        // Prevent player from going past the top wall
+        m_Position[1] = 720 - m_Size / 2;  // Place player at the top edge
+    }
+
+    if (distanceToBottom <= threshold) {
+        // Player has passed or is at the bottom wall: reverse y-direction
+        m_Movement = TwoBlade(m_Movement[0], -m_Movement[1], m_Movement[2],
+            m_Movement[3], m_Movement[4], m_Movement[5]);
+
+        // Prevent player from going past the bottom wall
+        m_Position[1] = m_Size / 2;  // Place player at the bottom edge
+    }
+
 }
 
 void Player::Rotate(float elapsedSec, const ThreeBlade& rotationPoint)
@@ -41,27 +84,21 @@ const ThreeBlade Player::GetCenter() const
     return ThreeBlade{ m_Position[0] + m_Size / 2, m_Position[1] + m_Size / 2, 0 };
 }
 
-void Player::ReverseDirection() {
-    // reccomended way (?)
-    // -> initialize 4 OneBlade boundaries to set the viewport bounds
-    // -> at all times calculate distance between Threeblade(player) and OneBlade (walls)
-    // -> if calculation == 0, then you have hit wall
-    
+float Player::CalculateDistance(const ThreeBlade& player, const OneBlade& wall)
+{
+    // Wall point positions
+    float x1 = wall[0];
+    float y1 = wall[1];
+    float x2 = wall[2];
+    float y2 = wall[3];
 
-    // Reverse the x-direction if the player hits the left or right bounds
-    if (m_Position[0] <= m_bounds.left || m_Position[0] + m_Size >= m_bounds.left + m_bounds.width) {
-        m_Movement = TwoBlade(-m_Movement[0], m_Movement[1], m_Movement[2],
-            m_Movement[3], m_Movement[4], m_Movement[5]);
-    }
+    // Player position
+    float px = player[0];
+    float py = player[1];
 
-    // Reverse the y-direction if the player hits the top or bottom bounds
-    if (m_Position[1] <= m_bounds.bottom || m_Position[1] + m_Size >= m_bounds.bottom + m_bounds.height) {
-        m_Movement = TwoBlade(m_Movement[0], -m_Movement[1], m_Movement[2],
-            m_Movement[3], m_Movement[4], m_Movement[5]);
-    }
-}
+    // Distance from point to line
+    float numerator = std::abs((y2 - y1) * px - (x2 - x1) * py + x2 * y1 - y2 * x1);
+    float denominator = std::sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
 
-bool Player::CheckCollision() {
-    return (m_Position[0] <= m_bounds.left || m_Position[0] + m_Size >= m_bounds.left + m_bounds.width ||
-        m_Position[1] <= m_bounds.bottom || m_Position[1] + m_Size >= m_bounds.bottom + m_bounds.height);
+    return numerator / denominator;
 }
